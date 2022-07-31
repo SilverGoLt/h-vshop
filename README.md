@@ -2,7 +2,7 @@
 
 ## FAQ
 
-#### What is H-Mining?
+#### What is H-Vshop?
 H-Vshop is a vehicle shop that supports all vehilces (Bicycles, Motorcycles, Cars, Trucks, Tanks, Planes, Helicopters). The configuration file is easy to use and doesn't require querying the database to get a list of vehicles to display to the player (Stupid shit).
 
 #### What languages have been used for H-Interactions?
