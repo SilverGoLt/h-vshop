@@ -62,6 +62,16 @@ function shop.purchaseCar(source,model, plate)
 				TriggerClientEvent('esx:showNotification', source, 'Sorry but you need: $' .. vPrice .. ' to purchase a ' .. vehicle.name)
 				return false
 			end
+		elseif Config.Payment == 'money' then
+			local money = xPlayer.getMoney()
+			if money >= vPrice then
+				xPlayer.removeMoney(vPrice)
+				TriggerClientEvent('esx:showNotification', source, 'You have purchased a ' .. vehicle.name .. ' for $' .. vPrice)
+				return true
+			else
+				TriggerClientEvent('esx:showNotification', source, 'Sorry but you need: $' .. vPrice .. ' to purchase a ' .. vehicle.name)
+				return false
+			end
 		end
 	else
 		print('Issues finding the vehicle from the config.lua file!')
