@@ -40,7 +40,7 @@
           </div>
           <div @click="purchase"
             class="px-8 py-2 text-white transition-all ease-in-out transform bg-green-500 rounded-lg cursor-pointer purchase-btn hover:scale-105 hover:bg-green-600">
-            <span>Purchase</span>
+            <span>{{ translation.purchase }}</span>
           </div>
         </div>
       </Transition>
