@@ -41,6 +41,7 @@ RegisterNUICallback('selectCar', function(data, cb)
         local vehicle = data.vehicle
 
         if vehicle then
+            TriggerEvent("esx:deleteVehicle", 10) -- if vehicle isnt loaded it will delete other selected vehicles
             Utils.spawnShowcase(vehicle)
             cb(true)
         else
@@ -55,6 +56,7 @@ RegisterNUICallback('closeShop', function (data, cb)
     Utils.destroyCam()
 
     local delete = Utils.deleteVehicle()
+    TriggerEvent("esx:deleteVehicle", 10) -- it will delete all bugged vehicles
     if not delete then
         print('[DEBUG] Could not delete vehicle!')
     end
