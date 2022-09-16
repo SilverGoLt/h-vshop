@@ -10,6 +10,7 @@ end)
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         Utils.createBlips()
+        print('[INFO] Resource started')
         _Loaded = true
     end
 end)

@@ -60,7 +60,7 @@ Utils.openShop = function ()
                 type = 'open',
                 shop = shop,
                 cars = cars,
-                translation = Config.Translation
+                translation = Config.Translation,
             })
             SetNuiFocus(true, true)
         end
@@ -77,6 +77,22 @@ Utils.deleteVehicle = function()
     end
 end
 
+Utils.loadModel = function(model)
+    RequestModel(model)
+
+    while not HasModelLoaded(model) do
+        Wait(1)
+    end
+
+    print('Loading Completed')
+
+    SendNUIMessage({
+        type = 'loadingDone'
+    })
+
+    return true
+end
+
 Utils.spawnShowcase = function(vehicle)
     local shop = Utils.getShop()
     local pos = shop.preview
@@ -88,6 +104,12 @@ Utils.spawnShowcase = function(vehicle)
     if not cars then return end
 
     if pos then
+
+        local loaded = Utils.loadModel(cars[1].model)
+        while not loaded do
+            Wait(1)
+        end
+
         if not currentVeh and not vehicle then
             ESX.Game.SpawnLocalVehicle(cars[1].model, vector3(pos.x, pos.y, pos.z), heading, function(vehicle)
                currentVeh = vehicle
@@ -123,6 +145,7 @@ end
 
 Utils.spawnVehicle = function(model, plate)
     local shop = Utils.getShop()
+
     if shop then
         local sPos = shop.delivery.pos
         local sHeading = shop.delivery.heading
@@ -148,12 +171,24 @@ Utils.spawnVehicle = function(model, plate)
 end
 
 Utils.getShopVehicles = function (category)
-    local vehicles = {}
-    for k,v in pairs(Config.Vehicles) do
-        if v.category == category then
-            vehicles[#vehicles+1] = v
+    if type(category) == "table" then
+        local vehicles = {}
+        for i = 1, #category do
+            local name = category[i]
+            for _,v in pairs(Config.Vehicles) do
+                if v.category == name then
+                    vehicles[#vehicles+1] = v
+                end
+            end
         end
+        return vehicles or nil
+    else
+        local vehicles = {}
+        for k,v in pairs(Config.Vehicles) do
+            if v.category == category then
+                vehicles[#vehicles+1] = v
+            end
+        end
+        return vehicles
     end
-
-    return vehicles
 end

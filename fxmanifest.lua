@@ -2,6 +2,8 @@ fx_version 'adamant'
 
 game 'gta5'
 
+lua54 'yes'
+
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/*.lua',
@@ -17,6 +19,7 @@ shared_scripts {
 }
 
 ui_page 'web/dist/index.html'
+--ui_page 'http://localhost:3000/'
 
 files {
     'web/dist/**'
