@@ -18,11 +18,11 @@
             <div class="text-sm text-white description">
               <p>{{store.description}}</p>
             </div>
-            <div v-if="store.category instanceof Array" class="mt-3 category">
+            <div v-if="shopStore.categories instanceof Array" class="mt-3 category">
               <div class="flex flex-row flex-wrap items-center space-x-1">
-                <div @click="setCategory(category)" v-for="category in store.category" :key="category"
+                <div @click="setCategory(category)" v-for="category in shopStore.categories" :key="category"
                   class="px-2 py-1 mt-1 text-xs font-medium text-white uppercase transition-all ease-in-out bg-white rounded-full cursor-pointer bg-opacity-10 hover:bg-opacity-20 category">
-                  <span>{{category}}</span>
+                  <span>{{ category }}</span>
                 </div>
               </div>
             </div>
@@ -39,24 +39,6 @@
             </div>
             <span class="text-white animate-pulse">Spawning Vehicle</span>
           </div>
-          <div v-else class="flex flex-col w-full pr-3 space-y-3 overflow-y-scroll h-2/3 vehicles">
-            <div @click="selectVehicle(car)" v-for="car, key in filterVehicles" :key="key"
-              class="flex flex-row items-center justify-between h-24 px-8 py-4 transition-all ease-in-out bg-white rounded-lg cursor-pointer vehicle bg-opacity-10 hover:bg-opacity-30">
-              <div class=" left">
-                <div class="text-lg text-white name">
-                  <span>{{ car.name }}</span>
-                </div>
-                <div class="text-sm text-white uppercase category">
-                  <span>{{ car.category }}</span>
-                </div>
-              </div>
-              <div class="right">
-                <div class="text-green-400 price">
-                  <span class="text-lg">{{ translation.currency }}{{ numberWithCommas(car.price) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
           <Transition>
             <div v-if="selected && !loading" class="flex flex-col items-center w-full space-y-3 purchase">
               <div class="text-white price">
@@ -64,7 +46,7 @@
               </div>
               <div @click="purchase"
                 class="px-8 py-2 text-white transition-all ease-in-out transform bg-green-500 rounded-lg cursor-pointer purchase-btn hover:scale-105 hover:bg-green-600">
-                <span>Purchase</span>
+                <span> {{ shopStore.translation.purchase }} </span>
               </div>
               <div @click="testDrive"
                 class="px-4 py-1 text-sm text-white transition-all ease-in-out transform bg-yellow-500 rounded-lg cursor-pointer purchase-btn hover:scale-105 hover:bg-yellow-600">
@@ -80,6 +62,7 @@
 
 <script>
 import Nui from './nui'
+import { useShopStore } from './stores/shop'
 import Timer from './components/timer.vue'
 
 export default {
@@ -87,10 +70,17 @@ export default {
   components: {
     Timer
   },
+  setup() {
+    const shopStore = useShopStore()
+
+    return {
+      shopStore
+    }
+  },
   data() {
     return {
       selected: false,
-      display: false,
+      display: true,
       loading: false,
       model: '',
       selectedCategory: 'clear',
@@ -98,15 +88,6 @@ export default {
       store: {
         name: 'Harokio Kampine',
         description: 'Stumdom belekokias masinites',
-        category: [
-          'X',
-        ],
-      },
-      vehicles: [
-      ],
-      translation: {
-        purchase: '',
-        currency: ''
       },
       timer: {
         show: false,
@@ -115,13 +96,6 @@ export default {
     }
   },
   methods: {
-    selectVehicle(car) {
-      this.loading = true
-      this.selected = true;
-      this.model = car.model;
-      this.price = car.price;
-      Nui('selectCar', { vehicle: car.model });
-    },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     },
@@ -155,10 +129,11 @@ export default {
         case 'open':
           this.display = true;
           this.store = data.shop;
-          if (this.store.category instanceof Array) this.store.category.push('clear');
-          this.vehicles = data.cars;
-          this.translation.purchase = data.translation.purchase;
-          this.translation.currency = data.translation.currency;
+          // Category Setter and Translation (Store)
+          const category = data.shop.category;
+          category.push('clear');
+          this.shopStore.setCategoryList(category);
+          this.shopStore.setTranslation(data.translation);
           break;
         case 'loadingDone':
           this.loading = false;
