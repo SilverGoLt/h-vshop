@@ -14,7 +14,9 @@ Config.Shops = {
         description = 'At our dealership you can find only premium quality vehicles that are brand new and not used!',
         pos = vec3(-33.942856, -1102.008789, 26.415405), -- Vec3(x, y, z)
         preview = vec3(-43.279121, -1099.938477, 26.415405), previewHeading = 68.031494, -- Vec3(x, y, z)
-        category = {'sports', 'suv', 'bmw', 'audi'}, -- Vehicle Category you can have a table of categories or a string example: 'sports' or {'sports', 'offroad'} don't remove X from the categories list!
+        category = {
+            'sports', 'suv', 'bmw', 'audi', 'honda', 'lexus', 'mazda', 'toyota'
+        }, -- Vehicle Category you can have a table of categories or a string example: 'sports' or {'sports', 'offroad'} don't remove X from the categories list!
         blip = { -- Blip Settings
             color = 3,
             sprite = 355,

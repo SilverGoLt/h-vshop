@@ -19,9 +19,9 @@
               <p>{{store.description}}</p>
             </div>
             <div v-if="store.category instanceof Array" class="mt-3 category">
-              <div class="flex flex-row items-center space-x-1">
+              <div class="flex flex-row flex-wrap items-center space-x-1">
                 <div @click="setCategory(category)" v-for="category in store.category" :key="category"
-                  class="px-2 py-1 text-xs font-medium text-white uppercase transition-all ease-in-out bg-white rounded-full cursor-pointer bg-opacity-10 hover:bg-opacity-20 category">
+                  class="px-2 py-1 mt-1 text-xs font-medium text-white uppercase transition-all ease-in-out bg-white rounded-full cursor-pointer bg-opacity-10 hover:bg-opacity-20 category">
                   <span>{{category}}</span>
                 </div>
               </div>
