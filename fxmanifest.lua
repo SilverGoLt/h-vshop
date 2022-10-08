@@ -18,8 +18,8 @@ shared_scripts {
     'shared/config.lua',
 }
 
---ui_page 'web/dist/index.html'
-ui_page 'http://localhost:3000/'
+ui_page 'web/dist/index.html'
+--ui_page 'http://localhost:3000/'
 
 files {
     'web/dist/**'
