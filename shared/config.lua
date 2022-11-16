@@ -5,7 +5,7 @@ Config.PlateLetters  = 3
 Config.PlateNumbers  = 3
 Config.PlateUseSpace = true
 Config.Payment = 'bank'
-Config.TestTime = 30 -- Sekundes Nahui!
+Config.TestTime = 30 -- Seconds
 
 -- This table is used to configure different shops!
 Config.Shops = {
