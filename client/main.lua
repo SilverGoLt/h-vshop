@@ -16,7 +16,7 @@ AddEventHandler('onResourceStart', function(resource)
 end)
 
 -- Marker Thread
-local mSleep = 500
+local mSleep = 0
 CreateThread(function ()
     while true do
         for i = 1, #Config.Shops do
@@ -27,10 +27,10 @@ CreateThread(function ()
             distance = #(playerPos - markerPos)
             if distance < 3 then
                 Utils.drawMarker(markerPos)
-                mSleep = 5
+                mSleep = 0
                 break
             else
-                mSleep = 500
+                mSleep = 0
             end
         end
         Wait(mSleep)
