@@ -4,7 +4,6 @@ local testShop
 
 RegisterNUICallback('testDrive', function(data, cb)
     ESX.TriggerServerCallback('h-vshop:testDrive', function(success)
-        print(success)
         if success then
             testDriving = true
             local shop = Utils.getShop()
@@ -15,7 +14,6 @@ RegisterNUICallback('testDrive', function(data, cb)
                 local sHeading = shop.delivery.heading
                 ESX.Game.SpawnLocalVehicle(data.vehicle, sPos, heading, function(vehicle)
                     testVehicle = vehicle
-                    print('Test vehicle spawned: '..vehicle)
                 end)
                 Wait(100)
                 SetPedIntoVehicle(PlayerPedId(), testVehicle, -1)

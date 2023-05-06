@@ -9,11 +9,22 @@ ESX.RegisterServerCallback('esx_vehicleshop:isPlateTaken', function(source, cb, 
 	end)
 end)
 
-ESX.RegisterServerCallback('h-vshop:buyCar', function (source, cb, model, plate)
+ESX.RegisterServerCallback('h-vshop:buyCar', function (source, cb, data)
 	if source ~= nil and source ~= -1 then
-		local result = shop.purchaseCar(source, model, plate)
+		local result = shop.purchaseCar(source, data.model, data.model)
+
+		if Config.Debug then
+			print(string.format('[Player] %s purchased a %s', GetPlayerName(source), data.model))
+		end
 
 		if result then
+			shop.setOwned(source, data.plate, data.model)
+			ESX.OneSync.SpawnVehicle(joaat(data.model), data.pos, data.heading,{plate = data.plate}, function(vehicle)
+				Wait(100)
+				local vehicle = NetworkGetEntityFromNetworkId(vehicle)
+				Wait(300)
+				TaskWarpPedIntoVehicle(GetPlayerPed(source), vehicle, -1)
+			end)
 			cb(true)
 		else
 			cb(false)
@@ -59,13 +70,13 @@ ESX.RegisterServerCallback('h-vshop:removeBucket', function (source, cb, bucket)
 	end
 end)
 
-function shop.setOwned(source, props)
+function shop.setOwned(source, plate, model)
 	local xPlayer = ESX.GetPlayerFromId(source)
 	if xPlayer then
 		local result = MySQL.insert.await('INSERT INTO owned_vehicles (owner, plate, vehicle) VALUES (?,?,?)', {
 			xPlayer.identifier,
-			props.plate,
-			json.encode(props)
+			plate,
+			json.encode({model = joaat(model), plate = plate})
 		})
 
 		if result then return true else return false end
@@ -132,9 +143,9 @@ if Debug then
 	RegisterCommand('getPlayerBucket', function(source)
 		local bucket = GetPlayerRoutingBucket(source)
 		print('Bucket: ' .. bucket)
-	end)
+	end, false)
 
 	RegisterCommand('resetPlayerBucket', function (source)
 		SetPlayerRoutingBucket(source, 0)
-	end)
+	end, false)
 end

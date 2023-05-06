@@ -1,142 +1,51 @@
-<template>
-  <Transition name="fade">
-    <div class="content">
-      <Timer v-if="timer.show" :time="timer.time" />
-      <div v-show="display"
-        class="flex items-center justify-between w-full h-screen p-8 bg-gradient-to-l from-black via-transparent to-transparent font-Saira main">
-        <div class="flex flex-col space-y-5 p-4 h-full w-[380px] left">
-        </div>
-        <div class="right relative flex flex-col space-y-5 p-4 h-full w-[380px]">
-          <div @click="close"
-            class="absolute text-white uppercase transition-all cursor-pointer hover:text-gray-400 top-20 exit -left-20">
-            <span>exit</span>
-          </div>
-          <div class="top">
-            <div class="text-3xl font-medium text-white font-Dancing header">
-              <span>{{store.name}}</span>
-            </div>
-            <div class="text-sm text-white description">
-              <p>{{store.description}}</p>
-            </div>
-            <div v-if="shopStore.categories instanceof Array" class="mt-3 category">
-              <div class="flex flex-row flex-wrap items-center space-x-1">
-                <div @click="setCategory(category)" v-for="category in shopStore.categories" :key="category"
-                  class="px-2 py-1 mt-1 text-xs font-medium text-white uppercase transition-all ease-in-out bg-white rounded-full cursor-pointer bg-opacity-10 hover:bg-opacity-20 category">
-                  <span>{{ category }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div v-if="loading"
-            class="relative z-20 flex flex-col space-y-5 items-center justify-center w-[380px] h-screen loading">
-            <div class="flex flex-row space-x-3 dots">
-              <div class="w-4 h-4 bg-white rounded-full animate-bounce dot-one">
-              </div>
-              <div class="w-4 h-4 bg-white rounded-full animate-bounce dot-two">
-              </div>
-              <div class="w-4 h-4 bg-white rounded-full animate-bounce dot-three">
-              </div>
-            </div>
-            <span class="text-white animate-pulse">Spawning Vehicle</span>
-          </div>
-          <Transition>
-            <div v-if="selected && !loading" class="flex flex-col items-center w-full space-y-3 purchase">
-              <div class="text-white price">
-                <span class="text-2xl font-medium">{{ translation.currency }}{{ numberWithCommas(price) }}</span>
-              </div>
-              <div @click="purchase"
-                class="px-8 py-2 text-white transition-all ease-in-out transform bg-green-500 rounded-lg cursor-pointer purchase-btn hover:scale-105 hover:bg-green-600">
-                <span> {{ shopStore.translation.purchase }} </span>
-              </div>
-              <div @click="testDrive"
-                class="px-4 py-1 text-sm text-white transition-all ease-in-out transform bg-yellow-500 rounded-lg cursor-pointer purchase-btn hover:scale-105 hover:bg-yellow-600">
-                <span>Test Drive</span>
-              </div>
-            </div>
-          </Transition>
-        </div>
-      </div>
-    </div>
-  </Transition>
-</template>
-
-<script>
+<script lang="ts">
+import { useShopStore } from './store/shop';
+import Categories from './components/Categories.vue';
+import Vehicles from './components/Vehicle.vue';
+import Selected from './components/Selected.vue';
+import Timer from './components/Timer.vue';
 import Nui from './nui'
-import { useShopStore } from './stores/shop'
-import Timer from './components/timer.vue'
+import MouseIcon from './assets/mouse.svg'
 
 export default {
-  name: 'Vehicle Shop Screen',
+  name: 'Vehicle Shop',
   components: {
+    Categories,
+    Vehicles,
+    Selected,
     Timer
   },
-  setup() {
-    const shopStore = useShopStore()
-
-    return {
-      shopStore
-    }
-  },
+  emits: ['startTimer'],
   data() {
     return {
-      selected: false,
-      display: true,
+      display: false,
       loading: false,
-      model: '',
-      selectedCategory: 'clear',
-      price: 0,
-      store: {
-        name: 'Harokio Kampine',
-        description: 'Stumdom belekokias masinites',
-      },
+      holding: false,
+      oldx: 0,
+      mouseDirection: '',
       timer: {
         show: false,
         time: 0,
-      }
-    }
-  },
-  methods: {
-    numberWithCommas(x) {
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    },
-    close() {
-      this.selected = false;
-      this.display = false;
-      Nui('closeShop');
-    },
-    purchase() {
-      Nui('purchase', { vehicle: this.model }).then(data => {
-        if (data) {
-          this.close();
-        }
-      });
-    },
-    testDrive() {
-      Nui('testDrive', { vehicle: this.model }).then(data => {
-        if (data) {
-          this.close();
-        }
-      });
-    },
-    setCategory(category) {
-      this.selectedCategory = category;
+      },
+      mouseIcon: MouseIcon
     }
   },
   mounted() {
     window.addEventListener('message', (event) => {
-      const data = event.data
+      let data = event.data
       switch (data.type) {
         case 'open':
           this.display = true;
-          this.store = data.shop;
-          // Category Setter and Translation (Store)
+          console.log(JSON.stringify(data, null, 2))
           const category = data.shop.category;
-          category.push('clear');
-          this.shopStore.setCategoryList(category);
+          if (category instanceof Array) { category.push('clear'); }
+          this.shopStore.setStore({ name: data.shop.name, description: data.shop.description });
+          this.shopStore.setCategories(category);
           this.shopStore.setTranslation(data.translation);
+          this.shopStore.setVehicles(data.cars);
           break;
         case 'loadingDone':
-          this.loading = false;
+          this.shopStore.loading = false;
           break;
         case 'startTimer':
           this.timer.show = true;
@@ -145,38 +54,96 @@ export default {
         case 'stopTimer':
           this.timer.show = false;
           break;
+        case 'close':
+          this.display = false;
+          break;
       }
     })
   },
-  computed: {
-    filterVehicles() {
-      if (this.selectedCategory !== 'clear') {
-        return this.vehicles.filter(vehicle => vehicle.category === this.selectedCategory);
-      } else {
-        return this.vehicles;
+  created() {
+    let that = this;
+    document.addEventListener('mousemove', that.NUIMouseMove)
+    document.addEventListener('mousedown', () => that.holding = true)
+    document.addEventListener('mouseup', () => that.holding = false)
+    document.addEventListener('keyup', function (evt) {
+      if (evt.keyCode === 27) {
+        that.close();
       }
+    });
+  },
+  methods: {
+    NUIMouseMove(e: any) {
+      if (e.pageX < this.oldx) { this.mouseDirection = 'left' } else { this.mouseDirection = 'right' }
+      this.oldx = e.pageX
+      if (this.mouseDirection == "left" && this.holding) {
+        if (e.target.classList.contains("main-shop")) {
+          Nui('rotateVeh', { type: 'right' })
+        }
+      }
+      if (this.mouseDirection == "right" && this.holding) {
+        if (e.target.classList.contains("main-shop")) {
+          Nui('rotateVeh', { type: 'left' })
+        }
+      }
+    }, close() {
+      this.display = false
+      this.shopStore.resetData()
+      Nui('closeShop');
+    },
+    startTest() {
+      console.log('test drive')
+      Nui('testDrive', { vehicle: this.shopStore.currentVehicle.model }).then((bool: boolean) => {
+        if (bool) {
+          this.close()
+        }
+      })
+    }
+  },
+  setup() {
+    const shopStore = useShopStore()
+
+    return {
+      shopStore
     }
   }
 }
 </script>
 
+<template>
+  <div v-show="display"
+    class="flex flex-col items-end justify-start w-full h-screen p-8 space-y-5 text-white main-shop bg-gradient-to-l from-black via-transparent to-transparent">
+    <div v-motion-pop class="main-stuff w-[380px] p-4 flex flex-col space-y-6 relative items-start overflow-hidden">
+      <div class="flex flex-row items-center space-x-3 exit-shop absolue left-12">
+        <div class="flex flex-row items-center space-x-3 rotate escape">
+          <div class="px-2 rounded-lg button bg-white/20">ESC</div>
+          <span class="text-sm">Exit Shop</span>
+        </div>
+        <div class="flex flex-row items-center space-x-3 rotate">
+          <div class="px-2 py-2 rounded-lg icon bg-white/20">
+            <img :src="mouseIcon" class="h-[24px] left-[2px] relative" alt="" srcset="">
+          </div>
+          <span class="text-sm">Rotate Vehicle</span>
+        </div>
+      </div>
+      <div class="top">
+        <div class="text-3xl font-medium title font-Dancing">
+          <span class="">{{ shopStore.store.name }}</span>
+        </div>
+        <div class="description">
+          <p class="text-sm text-white/50">{{ shopStore.store.description }}</p>
+        </div>
+        <div class="categories">
+          <Categories />
+        </div>
+      </div>
+      <Vehicles />
+      <Selected @startTimer="startTest" />
+    </div>
+  </div>
+  <Timer v-if="timer.show" :time="timer.time" />
+</template>
+
 <style>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-#app {
-  overflow: hidden;
-}
-
-.dot-two {
-  animation-delay: 0.2s;
-}
-
-.dot-three {
-  animation-delay: 0.3s;
-}
-
 /* width */
 ::-webkit-scrollbar {
   width: 5px;
@@ -190,28 +157,5 @@ export default {
 /* Handle */
 ::-webkit-scrollbar-thumb {
   background: rgb(255, 255, 255);
-}
-
-/* Transitions */
-.v-enter-active,
-.v-leave-active {
-  transition: all 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateX(500px);
 }
 </style>

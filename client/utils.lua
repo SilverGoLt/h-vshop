@@ -84,8 +84,6 @@ Utils.loadModel = function(model)
         Wait(1)
     end
 
-    print('Loading Completed')
-
     SendNUIMessage({
         type = 'loadingDone'
     })
@@ -93,13 +91,25 @@ Utils.loadModel = function(model)
     return true
 end
 
+Utils.rotateVehicle = function (direction)
+    if not currentVeh then return end
+
+    local heading = GetEntityHeading(currentVeh)
+
+    if direction == 'left' then
+        SetEntityHeading(currentVeh, heading + 3.0)
+    elseif direction == 'right' then
+        SetEntityHeading(currentVeh, heading - 3.0)
+    end
+end
+
 Utils.spawnShowcase = function(vehicle)
     local shop = Utils.getShop()
-    local pos = shop.preview
-    local heading = shop.previewHeading
-    local distance = shop.cameraDistance or 5.0
+    local pos = shop?.preview
+    local heading = shop?.previewHeading
+    local distance = shop?.cameraDistance or 5.0
 
-    local cars = Utils.getShopVehicles(shop.category)
+    local cars = Utils.getShopVehicles(shop?.category)
 
     if not cars then return end
 
@@ -125,7 +135,6 @@ Utils.spawnShowcase = function(vehicle)
         end
         return false
     end
-
 end
 
 Utils.getShop = function ()
@@ -156,17 +165,9 @@ Utils.spawnVehicle = function(model, plate)
             isClear = ESX.Game.IsSpawnPointClear(sPos, 3)
         end
 
-        ESX.Game.SpawnVehicle(model, sPos, sHeading, function(vehicle)
-            TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
-            local props = ESX.Game.GetVehicleProperties(vehicle)
-            props.plate = plate
-            SetVehicleNumberPlateText(vehicle, plate)
-
-            ESX.TriggerServerCallback('h-vshop:setOwned', function(success)
-                if not success then print('Issues with setOwned callback!') end
-            end, props)
-
-        end)
+        ESX.TriggerServerCallback('h-vshop:setOwned', function(success)
+            if not success then print('Issues with setOwned callback!') end
+        end, {model = model, plate = plate, pos = sPos, heading = sHeading})
     end
 end
 

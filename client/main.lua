@@ -50,9 +50,17 @@ RegisterNUICallback('selectCar', function(data, cb)
     end
 end)
 
+RegisterNUICallback('rotateVeh', function (body, resultCallback)
+    if body.type then
+        Utils.rotateVehicle(body.type)
+        resultCallback(true)
+    end
+end)
+
 RegisterNUICallback('closeShop', function (data, cb)
     _UIOpen = false
     SetNuiFocus(false, false)
+    SendNUIMessage({type = 'close'})
     Utils.destroyCam()
 
     local delete = Utils.deleteVehicle()
@@ -65,20 +73,21 @@ end)
 
 RegisterNUICallback('purchase', function (data,cb)
     local plate = GeneratePlate()
-    
+    local shop = Utils.getShop()
+    local sPos = shop.delivery.pos
+    local sHeading = shop.delivery.heading
+
     ESX.TriggerServerCallback('h-vshop:buyCar', function(success)
         if success then
-            Utils.spawnVehicle(data.vehicle, plate)
             cb(true)
         else
             cb(false)
         end
-    end, data.vehicle, plate)
-
+    end, {model = data.vehicle, plate = plate, pos = sPos, heading = sHeading})
 end)
 
 RegisterCommand('openCarShop', function()
     Utils.openShop()
-end)
+end, false)
 
 RegisterKeyMapping('openCarShop', 'Opens vehicle shop', 'keyboard', 'e')

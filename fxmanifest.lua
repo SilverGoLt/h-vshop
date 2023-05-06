@@ -19,7 +19,7 @@ shared_scripts {
 }
 
 ui_page 'web/dist/index.html'
---ui_page 'http://localhost:3000/'
+--ui_page 'http://localhost:5173'
 
 files {
     'web/dist/**'

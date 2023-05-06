@@ -1,9 +1,3 @@
-<template>
-    <div class="absolute flex items-start justify-center w-full text-xl italic text-white uppercase font-Saira top-8 overflow-none timer-container">
-        <span>{{currentTime}}s</span>
-    </div>
-</template>
-
 <script>
 import Nui from '../nui'
 
@@ -33,3 +27,9 @@ export default {
     },
 };
 </script>
+
+<template>
+    <div class="absolute z-50 flex items-start justify-center w-full text-xl italic text-white uppercase font-Saira top-8 overflow-none timer-container">
+        <span>{{currentTime}}s</span>
+    </div>
+</template>
