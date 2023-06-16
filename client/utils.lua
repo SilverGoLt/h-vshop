@@ -83,11 +83,6 @@ Utils.loadModel = function(model)
     while not HasModelLoaded(model) do
         Wait(1)
     end
-
-    SendNUIMessage({
-        type = 'loadingDone'
-    })
-
     return true
 end
 
@@ -124,12 +119,18 @@ Utils.spawnShowcase = function(vehicle)
             ESX.Game.SpawnLocalVehicle(cars[1].model, vector3(pos.x, pos.y, pos.z), heading, function(vehicle)
                currentVeh = vehicle
                Utils.createCamera(pos, heading, distance)
+               SendNUIMessage({
+                    type = 'loadingDone'
+                })     
             end)
         else
             ESX.Game.DeleteVehicle(currentVeh)
 
             ESX.Game.SpawnLocalVehicle(vehicle, vector3(pos.x, pos.y, pos.z), heading, function(vehicle)
                currentVeh = vehicle
+                SendNUIMessage({
+                    type = 'loadingDone'
+                })  
                return true
             end)
         end
