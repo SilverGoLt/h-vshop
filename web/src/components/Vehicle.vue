@@ -21,6 +21,7 @@ export default {
 <template>
     <div class="flex flex-col w-full pr-3 space-y-3 overflow-y-scroll h-2/3 vehicles">
         <div v-for="car, key in shopStore.getFilteredVehicles" :key="key"
+            v-if="!shopStore.loading"
             @click="shopStore.setCurrentVehicle(car)"
             :class="[shopStore.currentVehicle.name === car.name ? 'bg-opacity-50' : 'bg-opacity-10']"
             class="flex flex-row items-center justify-between h-24 px-8 py-4 transition-all ease-in-out bg-white rounded-lg cursor-pointer vehicle bg-opacity-10 hover:bg-opacity-30">
