@@ -11,7 +11,7 @@ end)
 
 ESX.RegisterServerCallback('h-vshop:buyCar', function (source, cb, data)
 	if source ~= nil and source ~= -1 then
-		local result = shop.purchaseCar(source, data.model, data.model)
+		local result = shop.purchaseCar(source, data.model, data.plate)
 
 		if Config.Debug then
 			print(string.format('[Player] %s purchased a %s', GetPlayerName(source), data.model))
