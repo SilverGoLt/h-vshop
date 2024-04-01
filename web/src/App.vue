@@ -3,7 +3,7 @@ import { useShopStore } from './store/shop';
 import Categories from './components/Categories.vue';
 import Vehicles from './components/Vehicle.vue';
 import Selected from './components/Selected.vue';
-import Timer from './components/Timer.vue';
+import Timer from './components/timer.vue';
 import Nui from './nui'
 import MouseIcon from './assets/mouse.svg'
 
